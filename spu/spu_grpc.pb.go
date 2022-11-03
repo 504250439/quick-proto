@@ -23,6 +23,8 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SorterClient interface {
 	QuickSort(ctx context.Context, in *Numbers, opts ...grpc.CallOption) (*Numbers, error)
+	SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
+	SayHelloAgain(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
 }
 
 type sorterClient struct {
@@ -42,11 +44,31 @@ func (c *sorterClient) QuickSort(ctx context.Context, in *Numbers, opts ...grpc.
 	return out, nil
 }
 
+func (c *sorterClient) SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error) {
+	out := new(HelloReply)
+	err := c.cc.Invoke(ctx, "/sorter.Sorter/SayHello", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *sorterClient) SayHelloAgain(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error) {
+	out := new(HelloReply)
+	err := c.cc.Invoke(ctx, "/sorter.Sorter/SayHelloAgain", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SorterServer is the server API for Sorter service.
 // All implementations must embed UnimplementedSorterServer
 // for forward compatibility
 type SorterServer interface {
 	QuickSort(context.Context, *Numbers) (*Numbers, error)
+	SayHello(context.Context, *HelloRequest) (*HelloReply, error)
+	SayHelloAgain(context.Context, *HelloRequest) (*HelloReply, error)
 	mustEmbedUnimplementedSorterServer()
 }
 
@@ -56,6 +78,12 @@ type UnimplementedSorterServer struct {
 
 func (UnimplementedSorterServer) QuickSort(context.Context, *Numbers) (*Numbers, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QuickSort not implemented")
+}
+func (UnimplementedSorterServer) SayHello(context.Context, *HelloRequest) (*HelloReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SayHello not implemented")
+}
+func (UnimplementedSorterServer) SayHelloAgain(context.Context, *HelloRequest) (*HelloReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SayHelloAgain not implemented")
 }
 func (UnimplementedSorterServer) mustEmbedUnimplementedSorterServer() {}
 
@@ -88,6 +116,42 @@ func _Sorter_QuickSort_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Sorter_SayHello_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HelloRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SorterServer).SayHello(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/sorter.Sorter/SayHello",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SorterServer).SayHello(ctx, req.(*HelloRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Sorter_SayHelloAgain_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HelloRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SorterServer).SayHelloAgain(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/sorter.Sorter/SayHelloAgain",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SorterServer).SayHelloAgain(ctx, req.(*HelloRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Sorter_ServiceDesc is the grpc.ServiceDesc for Sorter service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +162,14 @@ var Sorter_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "QuickSort",
 			Handler:    _Sorter_QuickSort_Handler,
+		},
+		{
+			MethodName: "SayHello",
+			Handler:    _Sorter_SayHello_Handler,
+		},
+		{
+			MethodName: "SayHelloAgain",
+			Handler:    _Sorter_SayHelloAgain_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
