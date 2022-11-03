@@ -1,0 +1,12 @@
+syntax = "proto3";
+package sorter;
+
+option go_package = "/spu/";
+
+message Numbers {
+  repeated int64  numbers = 1;
+}
+
+service Sorter {
+  rpc QuickSort(Numbers) returns (Numbers) {}
+}
